@@ -55,10 +55,10 @@ class Learner(models.Model):
 # Course model
 class Course(models.Model):
     name = models.CharField(null=False, max_length=30, default='online course')
-    image = models.ImageField(upload_to='course_images/')
+    image = models.ImageField(upload_to='course_images/', null=True)
     description = models.CharField(max_length=1000)
     pub_date = models.DateField(null=True)
-    instructors = models.ManyToManyField(Instructor)
+    instructors = models.ManyToManyField(Instructor, null=True)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Enrollment')
     total_enrollment = models.IntegerField(default=0)
     is_enrolled = False
@@ -106,19 +106,17 @@ class Question(models.Model):
         return "Question: " + self.content
 
     def is_get_score(self, selected_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
+        all_answers = self.choice_set.filter(is_correct=True).count() # type: ignore
+        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count() # type: ignore
         if all_answers == selected_correct:
             return True
         else:
             return False
         
-
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     content = models.CharField(max_length=100)
     is_correct_choice = models.BooleanField(default=False) 
-
 
 # One enrollment could have multiple submission
 # One submission could have multiple choices
